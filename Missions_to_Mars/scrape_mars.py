@@ -1,6 +1,9 @@
 from splinter import Browser
 from bs4 import BeautifulSoup as bs
+import pandas as pd
 import time
+import os
+import requests
 
 
 def init_browser():
@@ -12,8 +15,11 @@ def init_browser():
 def scrape_info():
     browser = init_browser()
 
-    # Visit visitcostarica.herokuapp.com
-    url = "https://visitcostarica.herokuapp.com/"
+    # Visit mars websites
+    url = 'https://mars.nasa.gov/news/'
+    url = 'https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/index.html'
+    url = 'https://space-facts.com/mars/'
+    hemisphere_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(url)
 
     time.sleep(1)
@@ -22,28 +28,53 @@ def scrape_info():
     html = browser.html
     soup = bs(html, "html.parser")
 
-    # Get the average temps
-    avg_temps = soup.find('div', id='weather')
+    # Scrape the News title & paragraph
+    stepone = soup.find('ul', class_='item_list')
 
-    # Get the min avg temp
-    min_temp = avg_temps.find_all('strong')[0].text
 
-    # Get the max avg temp
-    max_temp = avg_temps.find_all('strong')[1].text
+    steptwo = stepone.find('li', class_='slide')
+    news_title = steptwo.find('div', class_='content_title').text
+    news_p = steptwo.find('div', class_='article_teaser_body').text
 
-    # BONUS: Find the src for the sloth image
-    relative_image_path = soup.find_all('img')[2]["src"]
-    sloth_img = url + relative_image_path
+    # Scrape the featured image
+    feature_image = soup.find('div', class_='floating_text_area').a['href']
+    featured_image_url = "https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/" + feature_image
+
+    # Scrape the mars table
+    mars_table = pd.read_html(url)
+    mars_table[0]
+    mars_html_table = mars_table[0].to_html()
+
+    # Scrape the mars hempispheres
+    hemispheres = soup.find_all('div', class_='item')
+    # Create an empty list to hold all the hempisphere urls
+    hemisphere_images = []
+    # store the main url
+    hemisphere_url_main = 'https://astrogeology.usgs.gov'
+    # Loop through the items
+    for i in hemispheres:
+        title = i.find("h3").text
+    # Save the link that goes to the full image website
+        hemisphere_image_url = i.find("a", class_="itemLink product-item")["href"]
+        browser.visit(hemisphere_url_main + hemisphere_image_url)
+        hemisphere_image_html = browser.html
+        soup = BeautifulSoup(hemisphere_image_html, 'html.parser')
+        img_url = hemisphere_url_main + \
+            soup.find("img", class_="wide-image")["src"]
+    # #Append the dictionary with the image url string and the hemisphere title to a list
+        hemisphere_images.append({"title": title, "img_url": img_url})
 
     # Store data in a dictionary
     mars_data = {
-        "sloth_img": sloth_img,
-        "min_temp": min_temp,
-        "max_temp": max_temp
+        "news_title": news_title,
+        "news_p": news_p,
+        "feature_image": feature_image,
+        "mars_html_table": mars_html_table,
+        "hemisphere_images": hemisphere_images
     }
 
     # Close the browser after scraping
     browser.quit()
 
     # Return results
-    return costa_data
+    return mars_data
