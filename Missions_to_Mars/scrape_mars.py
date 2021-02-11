@@ -8,8 +8,9 @@ import requests
 
 def init_browser():
     # @NOTE: Replace the path with your actual path to the chromedriver
-    executable_path = {"executable_path": "C:/Users/Janelle Goddard/Downloads/chromedriver_win32/chromedriver"}
-    return Browser("chrome", **executable_path)
+    # executable_path = {"executable_path": "C:/Users/Janelle Goddard/Downloads/chromedriver_win32/chromedriver"}
+    # executable_path = {'executable_path': '/Users/hello/Downloads/chromedriver_win32/chromedriver'}
+    return Browser("chrome", "C:/Program Files/Google/Chrome/Application/chromedriver.exe")
 
 mars_data={}
 
@@ -57,7 +58,7 @@ def scrape_info():
     hemisphere_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(hemisphere_url)
     html_hemisphere = browser.html
-    soup = BeautifulSoup(html_hemisphere, 'html.parser')
+    soup = bs(html_hemisphere, 'html.parser')
     hemispheres = soup.find_all('div', class_='item')
     # Create an empty list to hold all the hempisphere urls
     hemisphere_images = []
@@ -70,7 +71,7 @@ def scrape_info():
         hemisphere_image_url = i.find("a", class_="itemLink product-item")["href"]
         browser.visit(hemisphere_url_main + hemisphere_image_url)
         hemisphere_image_html = browser.html
-        soup = BeautifulSoup(hemisphere_image_html, 'html.parser')
+        soup = bs(hemisphere_image_html, 'html.parser')
         img_url = hemisphere_url_main + \
             soup.find("img", class_="wide-image")["src"]
     # #Append the dictionary with the image url string and the hemisphere title to a list
@@ -80,7 +81,7 @@ def scrape_info():
     mars_data = {
         "news_title": news_title,
         "news_p": news_p,
-        "feature_image": feature_image,
+        "featured_image_url": featured_image_url,
         "mars_html_table": mars_html_table,
         "hemisphere_images": hemisphere_images
     }

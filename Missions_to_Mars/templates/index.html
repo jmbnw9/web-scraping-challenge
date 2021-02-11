@@ -25,16 +25,28 @@
     <div class = "row">
       <div class="col-md-8"> 
         <h2>Featured Mars Image</h2>
-        <img src={{ mars_data.featured_image_url }}>
+        <img src="{{mars_data['featured_image_url'] | default('static/images/error.png', true)}}">
       </div>
 
       <div class = "col-md-8">
         <h2> Mars Facts</h2>
-        <div {{ mars_data.mars_html_table}}></div>
+        <p {{mars_data.mars_html_table|safe}}></p>
       </div>  
     </div>
   </div>  
-    
+  <div class = "row" id = "mars-hemisphere">
+    <h2 class="text-center"> Mars Hemisphere </h2>
+    {% for x in mars_data.hemisphere_images %}
+    <div class=" col-3 col-md-6">
+      <div class="thumbnail">
+      <img src="{{x['img_url']|default('static/images/error.png', true)}}" alt="...">
+      <h5 id="caption">{{x['title']}}</h5>
+    </div>
+      <br/>
+    </div>
+    {% endfor %}
+   
+ </div>  
 </body>
 
 </html>
