@@ -4,13 +4,20 @@ import pandas as pd
 import time
 import os
 import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 
 def init_browser():
     # @NOTE: Replace the path with your actual path to the chromedriver
     # executable_path = {"executable_path": "C:/Users/Janelle Goddard/Downloads/chromedriver_win32/chromedriver"}
     # executable_path = {'executable_path': '/Users/hello/Downloads/chromedriver_win32/chromedriver'}
-    return Browser("chrome", "C:/Program Files/Google/Chrome/Application/chromedriver.exe")
+    options = Options()
+    options.binary_location = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+    driver = webdriver.Chrome(chrome_options = options, executable_path=r'C:/Users/Janelle Goddard/OneDrive/Desktop/chromedriver.exe')
+    driver.get('http://google.com/')
+    print("Chrome Browser Invoked")
+    driver.quit()
 
 mars_data={}
 
